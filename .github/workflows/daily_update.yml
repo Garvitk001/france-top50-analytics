@@ -2,36 +2,40 @@ name: Daily France Top 50 Automation
 
 on:
   schedule:
-    - cron: '0 2 * * *' 
+    - cron: '0 2 * * *'
   workflow_dispatch:
 
 jobs:
   update-dataset:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    - name: Install Python Libraries
-      run: |
-        pip install pandas spotipy
+      - name: Install Python Libraries
+        run: |
+          pip install pandas spotipy
 
-    - name: Run Daily Updater Script
-      env:
-        SPOTIPY_CLIENT_ID: ${{ secrets.SPOTIPY_CLIENT_ID }}
-        SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
-      run: python scripts/daily_updater.py
+      - name: Run Daily Updater Script
+        env:
+          SPOTIPY_CLIENT_ID: ${{ secrets.SPOTIPY_CLIENT_ID }}
+          SPOTIPY_CLIENT_SECRET: ${{ secrets.SPOTIPY_CLIENT_SECRET }}
+        # This part searches for the file so the folder name doesn't matter
+        run: |
+          SCRIPT_PATH=$(find . -name "daily_updater.py" | head -n 1)
+          python "$SCRIPT_PATH"
 
-    - name: Commit and Push Updated CSV
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add data/france_music_kpi_dataset.csv
-        git commit -m "Automated daily dataset update" || echo "No changes to commit"
-        git push
+      - name: Commit and Push Updated CSV
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          # This command finds your CSV regardless of folder
+          CSV_PATH=$(find . -name "france_music_kpi_dataset.csv" | head -n 1)
+          git add "$CSV_PATH"
+          git commit -m "Automated daily dataset update" || echo "No changes to commit"
+          git push
