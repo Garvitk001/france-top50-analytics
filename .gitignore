@@ -32,6 +32,10 @@ MANIFEST
 *.manifest
 *.spec
 
+
+.env
+__pycache__/
+data/france_music_kpi_dataset.csv
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
